@@ -19,12 +19,44 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Music Sessions</title>
   </head>
   <body>
-    <noscript>
+  <noscript>
       You need to enable JavaScript to run this app.
-    </noscript>
+  </noscript>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script>
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const token = 'BQCaL0FzGwfFJswhW2lMAZPAb9LW_z9-sZC9DPKzqbaxUT0phg1N6p-pyNf6Ua6VtkljIfgqNht-EW4CM94i6mcZmQ0RpT_vlueTHt-KpeCDCYy5BJtZcYLFcdb5ASAWJzIAL7GqjZBt1VnELbQXeyPXnzCljc2bo_yJRrGYuw';
+      const player = new Spotify.Player({
+        name: 'Music Sessions',
+        getOAuthToken: cb => { cb(token); }
+      });
+
+      // Error handling
+      player.addListener('initialization_error', ({ message }) => { console.error(message); });
+      player.addListener('authentication_error', ({ message }) => { console.error(message); });
+      player.addListener('account_error', ({ message }) => { console.error(message); });
+      player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+      // Playback status updates
+      player.addListener('player_state_changed', state => { console.log(state); });
+
+      // Ready
+      player.addListener('ready', ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+      });
+
+      // Not Ready
+      player.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+
+      // Connect to the player!
+      player.connect();
+    };
+  </script>
     <div id="root"></div>
     <!--
       This HTML file is a template.
