@@ -1,0 +1,40 @@
+extends layout
+block content
+  noscript
+    | You need to enable JavaScript to run this app.
+  script(src='https://sdk.scdn.co/spotify-player.js')
+  script.
+    var cookies = document.cookie;
+    console.log(document.cookie);
+    window.onSpotifyWebPlaybackSDKReady = () => {
+    const token = "#{access_token}";
+    const player = new Spotify.Player({
+    name: 'Music Sessions',
+    getOAuthToken: cb => { cb(token); }
+    });
+    // Error handling
+    player.addListener('initialization_error', ({ message }) => { console.error(message); });
+    player.addListener('authentication_error', ({ message }) => { console.error(message); });
+    player.addListener('account_error', ({ message }) => { console.error(message); });
+    player.addListener('playback_error', ({ message }) => { console.error(message); });
+    // Playback status updates
+    player.addListener('player_state_changed', state => { console.log(state); });
+    // Ready
+    player.addListener('ready', ({ device_id }) => {
+    console.log('Ready with Device ID', device_id);
+    });
+    // Not Ready
+    player.addListener('not_ready', ({ device_id }) => {
+    console.log('Device ID has gone offline', device_id);
+    });
+    // Connect to the player!
+    player.connect();
+    };
+  #root
+  //
+    This HTML file is a template.
+    If you open it directly in the browser, you will see an empty page.
+    You can add webfonts, meta tags, or analytics to this file.
+    The build step will place the bundled scripts into the <body> tag.
+    To begin the development, run `npm start` or `yarn start`.
+    To create a production bundle, use `npm run build` or `yarn build`.
