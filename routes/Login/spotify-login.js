@@ -23,7 +23,7 @@ function generateState() {
 // Displays logiin langing page
 
 router.get('/', function(req, res) {
-  res.render('login');
+  res.status(200).render('login');
 });
 
 // GET: /login/auth
@@ -93,7 +93,9 @@ router.get('/callback', function(req, res) {
         console.log('redirecting');
         res.cookie(
           'SPOTIFY',
-          { data, expiration_time: Date.now() + data.expires_in },
+          Object.assign(data, {
+            expiration_time: Date.now() + data.expires_in
+          }),
           {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
             httpOnly: true
@@ -110,9 +112,8 @@ router.get('/callback', function(req, res) {
 // Receives access token using refresh token (received from client in header)
 // sends access token to Client
 router.get('/refresh', function(req, res) {
-  var refresh_token = req.headers.refresh_token;
-  if (!refresh_token) refesh_token = req.cookies.SPOTIFY.refresh_token;
-
+  refresh_token = req.cookies.SPOTIFY.refresh_token;
+  console.log('referesh_token');
   if (!refresh_token) res.redirect('/login/auth/');
   var body = {
     grant_type: 'refresh_token',
@@ -124,7 +125,9 @@ router.get('/refresh', function(req, res) {
     body: urlencoded(body),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + Buffer.from(SPOTIFY_SECRET).toString('base64')
+      Authorization:
+        'Basic ' +
+        Buffer.from(`${SPOTIFY_ID}:${SPOTIFY_SECRET}`).toString('base64')
     }
   })
     .then(resp => resp.json())
@@ -134,17 +137,16 @@ router.get('/refresh', function(req, res) {
       }
       res.cookie(
         'SPOTIFY',
-        {
-          ...data,
+        Object.assign(data, {
           refresh_token,
           expiration_time: Date.now() + data.expires_in
-        },
+        }),
         {
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
           httpOnly: true
         }
       );
-      res.redirect('/');
+      res.status(200).send({ access_token: data.access_token });
     })
     .catch(err => res.send(err));
 });

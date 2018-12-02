@@ -4,17 +4,24 @@ const spotify_login = require('./spotify-login');
 
 /* GET home page. */
 router.get('', (req, res) => {
-  var spotify_deets = req.cookies.SPOTIFY;
-  if (spotify_deets) {
-    if (spotify_deets.data.expiration_time < Date.now()) {
+  console.log(req.cookies);
+  var data = req.cookies.SPOTIFY;
+
+  if (data) {
+    console.log(data);
+    if (data.expiration_time < Date.now()) {
+      res.status = 200;
       res.redirect('/login/refresh');
     } else {
-      console.log(spotify_deets.data.access_token);
-      res.render('index', {
-        access_token: spotify_deets.data.access_token
-      });
+      if (data.access_token) {
+        res.status = 200;
+        res.render('index', {
+          access_token: data.access_token
+        });
+      }
     }
-  } else res.redirect('/login/');
+  }
+  res.redirect('/login/');
 });
 
 // use spotify_login to handle login routes
