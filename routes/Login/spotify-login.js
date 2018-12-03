@@ -2,13 +2,6 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 const urlencoded = require('form-urlencoded').default;
-import 'dotenv/config';
-
-const { SPOTIFY_ID, SPOTIFY_SECRET, REDIRECT_URI } = {
-  SPOTIFY_ID: process.env.SPOTIFY_ID,
-  SPOTIFY_SECRET: process.env.SPOTIFY_SECRET,
-  REFIRECT_URI: process.env.REDIRECT_URI
-};
 
 function generateState() {
   let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
@@ -31,8 +24,9 @@ router.get('/', function(req, res) {
 // Fetch authorization code from spotify
 router.get('/auth', function(req, res) {
   console.log('redirecting to authorize');
-  var redirect_uri = REDIRECT_URI;
-  var my_client_id = SPOTIFY_ID;
+  console.log(process.env.REDIRECT_URI);
+  var redirect_uri = process.env.REDIRECT_URI;
+  var my_client_id = process.env.SPOTIFY_ID;
   var scopes =
     'streaming user-read-birthdate user-read-private user-read-email';
   var state = generateState();
@@ -74,7 +68,7 @@ router.get('/callback', function(req, res) {
     var body = {
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: REDIRECT_URI
+      redirect_uri: process.env.REDIRECT_URI
     };
     fetch('https://accounts.spotify.com/api/token', {
       method: 'post',
@@ -83,7 +77,9 @@ router.get('/callback', function(req, res) {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization:
           'Basic ' +
-          Buffer.from(`${SPOTIFY_ID}:${SPOTIFY_SECRET}`).toString('base64')
+          Buffer.from(
+            `${process.env.SPOTIFY_ID}:${process.env.SPOTIFY_SECRET}`
+          ).toString('base64')
       }
     })
       .then(resp => resp.json())
@@ -113,8 +109,8 @@ router.get('/callback', function(req, res) {
 // Receives access token using refresh token (received from client in header)
 // sends access token to Client
 router.get('/refresh', function(req, res) {
-  refresh_token = req.cookies.SPOTIFY.refresh_token;
-  console.log('referesh_token');
+  var refresh_token = req.cookies.SPOTIFY.refresh_token;
+  console.log('refresh_token');
   if (!refresh_token) res.redirect('/login/auth/');
   var body = {
     grant_type: 'refresh_token',
@@ -128,7 +124,9 @@ router.get('/refresh', function(req, res) {
       'Content-Type': 'application/x-www-form-urlencoded',
       Authorization:
         'Basic ' +
-        Buffer.from(`${SPOTIFY_ID}:${SPOTIFY_SECRET}`).toString('base64')
+        Buffer.from(
+          `${process.env.SPOTIFY_ID}:${process.env.SPOTIFY_SECRET}`
+        ).toString('base64')
     }
   })
     .then(resp => resp.json())

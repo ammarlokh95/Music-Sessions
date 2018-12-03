@@ -1,10 +1,20 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const cookieParser = require('cookie-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import dotenv from 'dotenv';
+
+dotenv.config({
+  path: path.join(__dirname, '../.env')
+});
+
 const app = express();
 
 const routes = require('../routes/Login/routes');
+
+// logger
+app.use(logger('combined'));
 
 // Bodyparser MW
 app.use(bodyParser.json());
