@@ -2,15 +2,36 @@ extends layout
 block content
   noscript
     | You need to enable JavaScript to run this app.
+  script(src="/socket.io/socket.io.js")
   script(src='https://sdk.scdn.co/spotify-player.js')
   script.
+    var socket = io();
     var cookies = document.cookie;
     console.log(document.cookie);
+    
     window.onSpotifyWebPlaybackSDKReady = () => {
-    const token = "#{access_token}";
+    var token = "#{access_token}";
+    var expires_in = #{expires_in};
+    // Sets the token and periodically refreshs token
+    setToken = (cb) => {
+      setInterval(() => {
+      console.log('refreshing token')
+      fetch('/login/refresh')
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+          token = data.access_token;
+          expires_in = data.expires_in;
+        })
+        .catch(err => console.log(err))
+      }, (expires_in - 5000));
+      cb(token);
+    }
+    
+
     const player = new Spotify.Player({
     name: 'Music Sessions',
-    getOAuthToken: cb => { cb(token); }
+    getOAuthToken: cb => {setToken(cb)}
     });
     // Error handling
     player.addListener('initialization_error', ({ message }) => { console.error(message); });
@@ -18,10 +39,15 @@ block content
     player.addListener('account_error', ({ message }) => { console.error(message); });
     player.addListener('playback_error', ({ message }) => { console.error(message); });
     // Playback status updates
-    player.addListener('player_state_changed', state => { console.log(state); });
+    player.addListener('player_state_changed', state => { socket.emit('player_state_changed', state); });
     // Ready
     player.addListener('ready', ({ device_id }) => {
     console.log('Ready with Device ID', device_id);
+    });
+
+    //recieve playback change
+    socket.on('player_state_changed', function(state){
+      console.log(state)
     });
     // Not Ready
     player.addListener('not_ready', ({ device_id }) => {
@@ -31,10 +57,4 @@ block content
     player.connect();
     };
   #root
-  //
-    This HTML file is a template.
-    If you open it directly in the browser, you will see an empty page.
-    You can add webfonts, meta tags, or analytics to this file.
-    The build step will place the bundled scripts into the <body> tag.
-    To begin the development, run `npm start` or `yarn start`.
-    To create a production bundle, use `npm run build` or `yarn build`.
+

@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 const urlencoded = require('form-urlencoded').default;
+import 'dotenv/config';
 
-const {
-  SPOTIFY_ID,
-  SPOTIFY_SECRET,
-  REDIRECT_URI
-} = require('../../keys/spotify-keys');
+const { SPOTIFY_ID, SPOTIFY_SECRET, REDIRECT_URI } = {
+  SPOTIFY_ID: process.env.SPOTIFY_ID,
+  SPOTIFY_SECRET: process.env.SPOTIFY_SECRET,
+  REFIRECT_URI: process.env.REDIRECT_URI
+};
 
 function generateState() {
   let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
@@ -94,7 +95,7 @@ router.get('/callback', function(req, res) {
         res.cookie(
           'SPOTIFY',
           Object.assign(data, {
-            expiration_time: Date.now() + data.expires_in
+            expiration_time: Date.now() + data.expires_in * 1000
           }),
           {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -139,14 +140,17 @@ router.get('/refresh', function(req, res) {
         'SPOTIFY',
         Object.assign(data, {
           refresh_token,
-          expiration_time: Date.now() + data.expires_in
+          expiration_time: Date.now() + data.expires_in * 1000
         }),
         {
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
           httpOnly: true
         }
       );
-      res.status(200).send({ access_token: data.access_token });
+      res.status(200).send({
+        access_token: data.access_token,
+        expires_in: data.expires_in * 1000
+      });
     })
     .catch(err => res.send(err));
 });

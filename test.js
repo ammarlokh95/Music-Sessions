@@ -30,7 +30,14 @@ describe('loading express', function() {
           3600 * 1000 +
           '}'
       )
-      .expect(200, done);
+      .expect(200)
+      .end(function(err, res) {
+        // HTTP status should be 200
+        res.status.should.equal(200);
+        console.log(res.cookies);
+        should(res.cookies).not.be.ok();
+        done();
+      });
   });
 
   it('responds to /login', function testLogin(done) {
@@ -57,7 +64,7 @@ describe('loading express', function() {
         done();
       });
   });
-  it('responds to /login/refresh by sending refresh token', function testLogin(done) {
+  it('responds to /login/refresh by fetching refresh token and rendering Index', function testLogin(done) {
     request(server)
       .get('/login/refresh')
       .expect(200)
