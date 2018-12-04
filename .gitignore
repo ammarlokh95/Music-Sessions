@@ -5,9 +5,6 @@
 /.pnp
 .pnp.js
 
-#API keys
-/keys
-
 # testing
 /coverage
 

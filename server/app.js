@@ -4,9 +4,10 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
+import webpackDevServer from '../webpack/dev-server';
 
 dotenv.config({
-  path: path.join(__dirname, '../.env')
+  path: path.join(__dirname, '../.env'),
 });
 
 const app = express();
@@ -36,7 +37,7 @@ app.use((err, req, res, next) => {
   res.status = err.status || 500;
   res.render('error', {
     message: err.message,
-    error: app.get('env') === 'development' ? err : {}
+    error: app.get('env') === 'development' ? err : {},
   });
   next();
 });
@@ -45,14 +46,9 @@ app.use((err, req, res, next) => {
 app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'pug');
 
-// Serve static assets if in Prod
-if (process.env.NODE_ENV === 'production') {
-  // Set Static folder
-  app.use(express.static('client/build'));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-  });
+// include webpack-dev-server for development only
+if (process.env.NODE_ENV !== 'production') {
+  webpackDevServer(app);
 }
 
 module.exports = app;
