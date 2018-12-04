@@ -77,7 +77,7 @@ router.get('/callback', (req, res) => {
         res.cookie(
           'SPOTIFY',
           Object.assign(data, {
-            expiration_time: Date.now() + data.expires_in * 1000,
+            expiration_time: Date.now() + data.expires_in * 1000 - 5000,
           }),
           {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -121,7 +121,7 @@ router.get('/refresh', (req, res) => {
         'SPOTIFY',
         Object.assign(data, {
           refresh_token,
-          expiration_time: Date.now() + data.expires_in * 1000,
+          expiration_time: Date.now() + data.expires_in * 1000 - 5000,
         }),
         {
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -130,7 +130,7 @@ router.get('/refresh', (req, res) => {
       );
       res.status(200).send({
         access_token: data.access_token,
-        expires_in: data.expires_in * 1000,
+        interval: data.expiration_time - Date.now(),
       });
     })
     .catch(err => res.send(err));

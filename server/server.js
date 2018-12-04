@@ -1,5 +1,5 @@
 import http from 'http';
-import app from './app';
+import app from '../app';
 
 /**
  * Simple logger function.
@@ -40,7 +40,8 @@ let availablePort = port;
  * Listen on provided port, on all network interfaces.
  */
 function startServer(serverPort) {
-  server.listen(serverPort);
+  server.listen(serverPort, () => {
+  });
 }
 
 /**
