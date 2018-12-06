@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+# Parcel cache
+/.cache
 # production
 /build
 
