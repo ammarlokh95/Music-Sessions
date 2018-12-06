@@ -5,56 +5,94 @@ import React from 'react';
 import { render } from 'react-dom';
 
 import './styles.css';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+
 import Host from './Components/Host';
 import Listener from './Components/Listener';
 
 class MainApp extends React.Component {
-  player = {};
+  constructor() {
+    super();
+    this.state = {
+      token: window.access_token,
+      interval: window.interval,
+      player: {},
+      isLoading: true,
+    };
+    // check every second for the player.
+    this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
+  }
 
-  componentDidMount = () => {
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      let { access_token } = window;
-      let { interval } = window;
-      this.player = new Spotify.Player({
+  componentDidUpdate(prevProps, nextProps) {
+    if (prevProps.token !== nextProps.token) {
+      this.state.player.getOAuthToken = (cb) => {
+        cb(nextProps.token);
+      };
+    }
+  }
+
+  checkForPlayer = () => {
+    const { token } = this.state;
+    console.log(token);
+    if (window.Spotify) {
+      clearInterval(this.playerCheckInterval);
+      const player = new window.Spotify.Player({
         name: 'Music Sessions',
         getOAuthToken: (cb) => {
-          cb(access_token);
+          cb(token);
         },
       });
-      // Sets the token and periodically refreshs token
-
-      const intervalFunction = () => {
-        console.log('refreshing token');
-        fetch('/login/refresh')
-          .then(res => res.json())
-          .then((data) => {
-            console.log(data);
-            access_token = { data };
-            interval = { data };
-            this.player.getOAuthToken(access_token);
-            setTimeout(internalFunction, interval);
-          })
-          .catch(err => console.log(err));
-      };
-      if (interval < 0) {
-        interval = 0;
-      }
-      setTimeout(intervalFunction, interval);
-    };
+      this.setState({
+        isLoading: false,
+        player,
+      });
+      console.log(window.Spotify);
+    }
   };
 
-  renderChild = component => <component player={this.player} />;
+  // Sets the token and periodically refreshs token
+  getToken = () => {
+    const { interval } = this.state;
+    const intervalFn = function intervalFunction() {
+      console.log('refreshing token');
+      fetch('/login/refresh')
+        .then(res => res.json())
+        .then((data) => {
+          this.setState(state => ({
+            token: data.access_token,
+            interval: data.interval,
+            player: {
+              ...state.player,
+              getOAuthToken: (cb) => {
+                cb(data.access_token);
+              },
+            },
+          }));
+          setTimeout(intervalFunction(), data.interval);
+        })
+        .catch(err => console.log(err));
+    };
+    setTimeout(intervalFn(), interval);
+  };
 
   render() {
+    const { isLoading, player } = this.state;
     return (
-      <div className="MainApp">
-        <button type="button" onClick={this.renderChild(Host)}>
-          Host
-        </button>
-        <button type="button" onClick={this.renderChild(Listener)}>
-          Join
-        </button>
-      </div>
+      <Router>
+        <div className="MainApp">
+          <Route path="/host" render={props => <Host {...props} player={player} />} />
+          <Route path="/listen" render={props => <Listener {...props} player={player} />} />
+          {isLoading ? (
+            <p>Spotify Player is Loading</p>
+          ) : (
+            <div className="Links">
+              <Link to="/host">Host</Link>
+              <br />
+              <Link to="/listen">Join</Link>
+            </div>
+          )}
+        </div>
+      </Router>
     );
   }
 }

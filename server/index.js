@@ -1,1 +1,1 @@
-import './socket-server';
+import './SocketServer';

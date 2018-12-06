@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 
-const routes = require('./routes/routes');
+const routes = require('./routes/Routes');
 
 // logger
 app.use(logger('combined'));
@@ -49,4 +49,4 @@ app.use((err, req, res, next) => {
 app.set('views', path.join(__dirname, './views'));
 app.set('view engine', 'pug');
 
-module.exports = app;
+export default app;

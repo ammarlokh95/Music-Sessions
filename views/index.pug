@@ -7,6 +7,10 @@ block content
   script.
     var access_token = '#{access_token}';
     var interval = #{interval};
+    console.log(`INDEX.PUG: ${access_token}`);
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      var Spotify = Spotify;
+    };
   main#app
   script(src="/js/index.js")
 
