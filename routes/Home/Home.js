@@ -9,7 +9,7 @@ function getJSON(data) {
 
 const homeRoute = (req, res) => {
   let data = req.cookies.SPOTIFY;
-  console.log(data);
+  console.log(`HOME:${data.expiration_time - Date.now()}`);
   if (data) {
     data = getJSON(data);
     if (data.expiration_time < Date.now()) {
