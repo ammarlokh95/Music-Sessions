@@ -4,10 +4,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { hot } from 'react-hot-loader';
+import { Provider } from 'react-redux';
 
 import '../styles.css';
 import Host from './Host';
 import Listener from './Listener';
+import Store from '../Store';
 
 class App extends React.Component {
   constructor() {
@@ -75,7 +77,7 @@ class App extends React.Component {
             () => {
               const { interval: newInterval } = this.state;
               console.log('adding set time out');
-              setTimeout(() => intervalFn(), newInterval);
+              this.getToken();
             },
           );
         })
@@ -87,29 +89,31 @@ class App extends React.Component {
   render() {
     const { isLoading, player } = this.state;
     return (
-      <Router>
-        <div className="main-app">
-          <Route path="/host" render={props => <Host {...props} player={player} />} />
-          <Route path="/listen" render={props => <Listener {...props} player={player} />} />
-          <Route
-            exact
-            path="/"
-            render={() => (
-              <div>
-                {isLoading ? (
-                  <p>Spotify Player is Loading</p>
-                ) : (
-                  <div className="Links">
-                    <Link to="/host">Host</Link>
-                    <br />
-                    <Link to="/listen">Join</Link>
-                  </div>
-                )}
-              </div>
-            )}
-          />
-        </div>
-      </Router>
+      <Provider>
+        <Router>
+          <div className="main-app">
+            <Route path="/host" render={props => <Host {...props} player={player} />} />
+            <Route path="/listen" render={props => <Listener {...props} player={player} />} />
+            <Route
+              exact
+              path="/"
+              render={() => (
+                <div>
+                  {isLoading ? (
+                    <p>Spotify Player is Loading</p>
+                  ) : (
+                    <div className="Links">
+                      <Link to="/host">Host</Link>
+                      <br />
+                      <Link to="/listen">Join</Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+        </Router>
+      </Provider>
     );
   }
 }

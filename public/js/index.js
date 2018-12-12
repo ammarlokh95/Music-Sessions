@@ -45409,21 +45409,27 @@ var SongScroller =
 function (_React$Component) {
   _inherits(SongScroller, _React$Component);
 
-  function SongScroller() {
-    var _getPrototypeOf2;
-
+  function SongScroller(props) {
     var _this;
 
     _classCallCheck(this, SongScroller);
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SongScroller).call(this, props));
 
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(SongScroller)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "togglePlayButton", function () {
+      var isPlay = _this.state.isPlay;
+      var toggleMusic = _this.props.toggleMusic;
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "play", void 0);
+      _this.setState({
+        isPlay: !isPlay
+      });
 
+      toggleMusic();
+    });
+
+    _this.state = {
+      isPlay: true
+    };
     return _this;
   }
 
@@ -45432,8 +45438,8 @@ function (_React$Component) {
     value: function render() {
       var _this$props = this.props,
           playPrev = _this$props.playPrev,
-          playNext = _this$props.playNext,
-          toggleMusic = _this$props.toggleMusic;
+          playNext = _this$props.playNext;
+      var isPlay = this.state.isPlay;
       return _react.default.createElement("div", {
         className: "song-scroller"
       }, _react.default.createElement("div", {
@@ -45447,11 +45453,15 @@ function (_React$Component) {
         type: "button",
         className: "prev",
         onClick: playPrev
-      }, "Prev"), _react.default.createElement("button", {
+      }, "Prev"), isPlay ? _react.default.createElement("button", {
         type: "button",
         className: "play-toggle",
-        onClick: toggleMusic
-      }, "Play"), _react.default.createElement("button", {
+        onClick: this.togglePlayButton
+      }, "Play") : _react.default.createElement("button", {
+        type: "button",
+        className: "play-toggle",
+        onClick: this.togglePlayButton
+      }, "Pause"), _react.default.createElement("button", {
         type: "button",
         className: "next",
         onClick: playNext
@@ -46089,9 +46099,8 @@ function (_React$Component) {
           }, function () {
             var newInterval = _this.state.interval;
             console.log('adding set time out');
-            setTimeout(function () {
-              return intervalFn();
-            }, newInterval);
+
+            _this.getToken();
           });
         }).catch(function (err) {
           return console.log(err);
@@ -46233,7 +46242,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38437" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38147" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

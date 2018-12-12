@@ -5,10 +5,25 @@ import PropTypes from 'prop-types';
 // class SongScroller extends React.Component
 
 class SongScroller extends React.Component {
-  play;
+  constructor(props) {
+    super(props);
+    this.state = {
+      isPlay: true,
+    };
+  }
+
+  togglePlayButton = () => {
+    const { isPlay } = this.state;
+    const { toggleMusic } = this.props;
+    this.setState({
+      isPlay: !isPlay,
+    });
+    toggleMusic();
+  };
 
   render() {
-    const { playPrev, playNext, toggleMusic } = this.props;
+    const { playPrev, playNext } = this.props;
+    const { isPlay } = this.state;
     return (
       <div className="song-scroller">
         <div className="song-image">
@@ -18,9 +33,15 @@ class SongScroller extends React.Component {
           <button type="button" className="prev" onClick={playPrev}>
             Prev
           </button>
-          <button type="button" className="play-toggle" onClick={toggleMusic}>
-            Play
-          </button>
+          {isPlay ? (
+            <button type="button" className="play-toggle" onClick={this.togglePlayButton}>
+              Play
+            </button>
+          ) : (
+            <button type="button" className="play-toggle" onClick={this.togglePlayButton}>
+              Pause
+            </button>
+          )}
           <button type="button" className="next" onClick={playNext}>
             Next
           </button>
