@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import SideBar from '../Components/SideBar';
-import SongList from '../Components/SongList';
+import DisplayList from '../Components/DisplayList';
 import SongScroller from '../Components/SongScroller';
 
 class MusicPlayer extends Component {
@@ -31,7 +31,7 @@ class MusicPlayer extends Component {
     return (
       <div className="music-player">
         <SideBar />
-        <SongList />
+        <DisplayList />
         <SongScroller
           toggleMusic={this.toggleMusic}
           playNext={this.playNext}

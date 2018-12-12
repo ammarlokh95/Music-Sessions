@@ -9,13 +9,13 @@ import { Provider } from 'react-redux';
 import '../styles.css';
 import Host from './Host';
 import Listener from './Listener';
-import Store from '../Store';
+import store from '../Store';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      token: window.access_token,
+      token: window.token,
       interval: window.interval,
       player: {},
       isLoading: true,
@@ -24,17 +24,9 @@ class App extends React.Component {
     this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
   }
 
-  componentDidUpdate(prevProps, nextProps) {
-    if (prevProps.token !== nextProps.token) {
-      // this.state.player.getOAuthToken = (cb) => {
-      //   cb(nextProps.token);
-      // };
-    }
-  }
-
   checkForPlayer = () => {
     const { token } = this.state;
-    console.log(token);
+    console.log(token + " in app.js");
     if (window.Spotify) {
       clearInterval(this.playerCheckInterval);
       const player = new window.Spotify.Player({
@@ -63,6 +55,7 @@ class App extends React.Component {
       fetch('/login/refresh')
         .then(res => res.json())
         .then((data) => {
+          window.token = data.access_token;
           this.setState(
             state => ({
               token: data.access_token,
@@ -74,11 +67,7 @@ class App extends React.Component {
                 },
               },
             }),
-            () => {
-              const { interval: newInterval } = this.state;
-              console.log('adding set time out');
-              this.getToken();
-            },
+            this.getToken(),
           );
         })
         .catch(err => console.log(err));
@@ -89,7 +78,7 @@ class App extends React.Component {
   render() {
     const { isLoading, player } = this.state;
     return (
-      <Provider>
+      <Provider store={store}>
         <Router>
           <div className="main-app">
             <Route path="/host" render={props => <Host {...props} player={player} />} />

@@ -5,7 +5,7 @@ block content
   script(src="/socket.io/socket.io.js")
   script(src='https://sdk.scdn.co/spotify-player.js')
   script.
-    var access_token = '#{access_token}';
+    var token = '#{access_token}';
     var interval = #{interval};
     window.onSpotifyWebPlaybackSDKReady = () => {
       var Spotify = Spotify;
